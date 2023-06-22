@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Closure;
+use Illuminate\Support\Facades\Http;
 
 class LoginRequest extends FormRequest
 {
@@ -29,6 +31,21 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'g-recaptcha-response' => [
+                'required',
+                function (string $attribute, mixed $value, Closure $fail) {
+                    $g_response = Http::withoutVerifying()->withOptions([
+                        'verify' => false,
+                    ])->asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                        'secret' => env('RECAPTCHA_SECRET_KEY'),
+                        'response' => $value,
+                        'remoteip' => $_SERVER['REMOTE_ADDR'],
+                    ]);
+                    if (!$g_response->json('success')) {
+                        $fail("The {$attribute} is invalid.");
+                    }
+                },
+            ]
         ];
     }
 
@@ -41,8 +58,9 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        if (!Auth::guard('admin')->attempt($this->only('email', 'password'), $this->boolean('remember')) && !Auth::guard('customer')->attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+
+            RateLimiter::hit($this->throttleKey(), 30);
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
@@ -59,7 +77,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 3)) {
             return;
         }
 
@@ -80,6 +98,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->input('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->input('email')) . '|' . $this->ip());
     }
 }

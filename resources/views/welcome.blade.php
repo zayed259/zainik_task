@@ -11,9 +11,14 @@
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{url('assets/img/favicon.ico')}}" />
+    <style>
+        .body {
+            background-color: #f5f5f5;
+        }
+    </style>
 </head>
 
-<body>
+<body class="body">
     <div class="container mt-5 text-center">
         @if(Auth::guard('admin')->check())
         <a href="{{ route('admin.dashboard') }}" class="btn btn-primary w-25 mb-3">Admin Dashboard</a> <br>

@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
-use Closure;
-use Illuminate\Support\Facades\Http;
 
 class LoginController extends Controller
 {
@@ -22,30 +21,12 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request): RedirectResponse
     {
-        // dd($request->all());
-        $this->validate($request, [
-            'email'   => 'required|email',
-            'password' => 'required',
-            'g-recaptcha-response' => [
-                'required',
-                function (string $attribute, mixed $value, Closure $fail) {
-                    $g_response = Http::withoutVerifying()->withOptions([
-                        'verify' => false,
-                    ])->asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-                        'secret' => env('RECAPTCHA_SECRET_KEY'),
-                        'response' => $value,
-                        'remoteip' => $_SERVER['REMOTE_ADDR'],
-                    ]);
-                    if (!$g_response->json('success')) {
-                        $fail("The {$attribute} is invalid.");
-                    }
-                },
-            ]
-        ]);
-
         if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' => $request->password], $request->get('remember'))) {
+            $request->authenticate();
+            $request->session()->regenerate();
+
             return redirect()->route('admin.dashboard');
         } elseif (Auth::guard('customer')->attempt(['email' => $request->email, 'password' => $request->password], $request->get('remember'))) {
             // is_disabled check for customer
@@ -57,6 +38,9 @@ class LoginController extends Controller
                     'email' => 'Your account has been disabled.'
                 ]);
             }
+            $request->authenticate();
+            $request->session()->regenerate();
+            
             return redirect()->route('customer.dashboard');
         } else {
             return redirect()->back()->withInput($request->only('email', 'remember'))->withErrors([

@@ -15,8 +15,14 @@
 
 <body>
     <div class="container mt-5 text-center">
+        @if(Auth::guard('admin')->check())
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-primary w-25 mb-3">Admin Dashboard</a> <br>
+        @elseif(Auth::guard('customer')->check())
+        <a href="{{ route('customer.dashboard') }}" class="btn btn-secondary w-25">Customer Dashboard</a>
+        @else
         <a href="{{ route('login') }}" class="btn btn-primary w-25 mb-3">Login</a> <br>
         <a href="{{ route('register') }}" class="btn btn-secondary w-25">Register</a>
+        @endif
 
     </div>
 

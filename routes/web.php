@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/',[App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+// public social media links url generator route 
+Route::get('/user_data/{id}', [App\Http\Controllers\HomeController::class, 'user_data'])->name('user_data');
+
+
 // # Customer panel routes
 Route::prefix('/customer')->name('customer.')->middleware(['auth:customer', 'verified'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');

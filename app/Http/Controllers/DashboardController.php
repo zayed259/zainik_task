@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
-
+use Share;
 class DashboardController extends Controller
 {
     public function index()
@@ -16,7 +16,22 @@ class DashboardController extends Controller
 
             return view('admin.dashboard')->with(compact('customers'));
         } elseif (auth()->guard('customer')->check()) {
-            return view('customer.dashboard');
+            $customer = auth()->guard('customer')->user();
+
+            $data = [
+                'name' => $customer->name,
+                'email' => $customer->email,
+                'details' => $customer->details,
+                'avatar' => $customer->avatar,
+            ];
+            // dd($data);
+
+            $share_buttons = Share::page(
+                url('/user_data/' . $customer->id),
+                $data['details'],
+            )->facebook()->twitter()->linkedin()->whatsapp()->pinterest()->reddit()->telegram();
+            // dd($share_buttons);
+            return view('customer.dashboard')->with(compact('data', 'share_buttons'));
         } else {
             return redirect()->route('login');
         }
@@ -47,7 +62,7 @@ class DashboardController extends Controller
     public function customerDelete($id)
     {
         $customer = Customer::findOrFail($id);
-        
+
         $image_path = public_path("avatars/{$customer->avatar}");
         if (file_exists($image_path)) {
             unlink($image_path);
@@ -60,4 +75,6 @@ class DashboardController extends Controller
             return redirect()->route('admin.dashboard')->with('error', 'Something went wrong');
         }
     }
+
+
 }

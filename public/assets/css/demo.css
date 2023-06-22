@@ -269,4 +269,23 @@
 					   color-stop(.5, transparent), to(transparent));
 } */
 
+#social-links ul li{
+  display: inline-block;
+  margin-right: 10px;
+}
 
+#social-links ul li a span{
+  height: 40px;
+  width: 40px;
+  color: #fff;
+  font-size: 20px;
+  padding: 10px;
+  border-radius: 50%;
+  background: #696cff;
+  transition: all 0.3s ease-in-out;
+}
+
+#social-links ul li a span:hover{
+  background: #030303;
+  color: #02a8f4;
+}

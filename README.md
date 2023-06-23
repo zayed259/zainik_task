@@ -27,17 +27,24 @@ Generate a new application key
 
     php artisan key:generate
 
-
 Run the database migrations (**Set the database connection in .env before migrating**)
 
     php artisan migrate
 
+To seed the database with dummy data
+
+    php artisan db:seed
 
 Start the local development server
 
     php artisan serve
 
 You can now access the server at http://localhost:8000
+
+Admin login information
+
+    Email: admin@gmail.com
+    Password: admin123
 
 **TL;DR command list**
 
@@ -50,6 +57,7 @@ You can now access the server at http://localhost:8000
 **Make sure you set the correct database connection information before running the migrations** [Environment variables](#environment-variables)
 
     php artisan migrate
+    php artisan db:seed
     php artisan serve
 
 ## Folders

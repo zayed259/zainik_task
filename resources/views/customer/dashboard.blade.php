@@ -33,6 +33,9 @@ Customer Dashboard
                             </tr>
                         </table>
                         <div class="mt-5 text-center">
+                            <p class="text-primary">
+                                <i class="fa fa-share-alt"></i> Share Social Media
+                            </p>
                             {!! $share_buttons !!}
                         </div>
                     </div>

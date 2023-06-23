@@ -45,7 +45,7 @@ class LoginRequest extends FormRequest
                         $fail("The {$attribute} is invalid.");
                     }
                 },
-            ]
+            ],
         ];
     }
 
@@ -57,10 +57,9 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
+        if((!Auth::guard('admin')->attempt($this->only('email', 'password'), $this->boolean('remember'))) && (!Auth::guard('customer')->attempt($this->only('email', 'password'), $this->boolean('remember')))){
 
-        if (!Auth::guard('admin')->attempt($this->only('email', 'password'), $this->boolean('remember')) && !Auth::guard('customer')->attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-
-            RateLimiter::hit($this->throttleKey(), 30);
+            RateLimiter::hit($this->throttleKey(),900);
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
@@ -84,11 +83,13 @@ class LoginRequest extends FormRequest
         event(new Lockout($this));
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
+        $minutes = ($seconds / 60)<1 ? 0 : floor($seconds / 60);
 
         throw ValidationException::withMessages([
             'email' => trans('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
+                'minutesandseconds' => $minutes . ' minutes and ' . $seconds % 60 . ' seconds.',
             ]),
         ]);
     }

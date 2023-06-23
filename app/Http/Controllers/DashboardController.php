@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Share;
+
 class DashboardController extends Controller
 {
     public function index()
@@ -75,6 +76,4 @@ class DashboardController extends Controller
             return redirect()->route('admin.dashboard')->with('error', 'Something went wrong');
         }
     }
-
-
 }

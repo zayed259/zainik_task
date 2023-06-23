@@ -3,9 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -14,29 +11,11 @@ class HomeController extends Controller
         return view('welcome');
     }
 
-    public function destroy(Request $request): RedirectResponse
-    {
-        if(Auth::guard('admin')->check()){
-            Auth::guard('admin')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-        }elseif(Auth::guard('customer')->check()){
-            Auth::guard('customer')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-        }else{
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-        }
-        return redirect()->route('home');
-    }
-
     public function user_data($id)
     {
         $customer = Customer::findOrfail($id);
         // dd($customer);
-        if(!$customer){
+        if (!$customer) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Customer not found',

@@ -1,5 +1,5 @@
 <h1 align="center">Zainik  Lab Task</h1>
-Problem Solving / Technical Task (Interview) - Zainik Lab
+<p align="center">Problem Solving / Technical Task (Interview) - Zainik Lab</p>
 
 ----------
 
